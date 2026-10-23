@@ -1,0 +1,6 @@
+<%-- Buscador de los listados. Variables: rutaBuscar, textoBuscar. --%>
+<form method="get" action="${ctx}${rutaBuscar}" class="buscador" role="search">
+    <svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-buscar"/></svg>
+    <input type="search" name="q" value="${fn:escapeXml(param.q)}" placeholder="${textoBuscar}" aria-label="${textoBuscar}" maxlength="100">
+    <c:if test="${not empty param.q}"><a class="enlace-accion" href="${ctx}${rutaBuscar}">Quitar filtro</a></c:if>
+</form>

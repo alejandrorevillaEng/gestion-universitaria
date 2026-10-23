@@ -13,6 +13,8 @@ public final class AplicacionApi extends ResourceConfig {
         register(ProfesoresRecurso.class);
         register(AsignaturasRecurso.class);
         register(AlumnosRecurso.class);
+        register(AulasRecurso.class);
+        register(SaludRecurso.class);
         register(UsuariosRecurso.class);
         register(EstadisticasRecurso.class);
         register(MapeadoresErrores.Negocio.class);

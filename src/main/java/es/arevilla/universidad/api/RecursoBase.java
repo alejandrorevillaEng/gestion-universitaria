@@ -1,5 +1,6 @@
 package es.arevilla.universidad.api;
 
+import es.arevilla.universidad.modelo.Pagina;
 import es.arevilla.universidad.modelo.Usuario;
 import es.arevilla.universidad.seguridad.Sesion;
 import es.arevilla.universidad.servicio.ErrorNegocio;
@@ -40,5 +41,16 @@ abstract class RecursoBase {
     protected Response creado(int id, Object entidad) {
         URI ubicacion = uri.getAbsolutePathBuilder().path(Integer.toString(id)).build();
         return Response.created(ubicacion).entity(entidad).build();
+    }
+
+    /** Los listados paginados devuelven el array de siempre y el total en una cabecera. */
+    protected static Response pagina(Pagina<?> p) {
+        return Response.ok(p.elementos())
+                .header("X-Total-Count", p.total())
+                .build();
+    }
+
+    protected static boolean pideBusqueda(String q, Integer pagina, Integer tamano) {
+        return q != null || pagina != null || tamano != null;
     }
 }

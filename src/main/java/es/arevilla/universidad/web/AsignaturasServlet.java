@@ -28,7 +28,9 @@ public class AsignaturasServlet extends ControladorBase {
             case "ver" -> detalle(req, resp, id(req));
             case "exportar" -> exportarCsv(req, resp, id(req));
             default -> {
-                req.setAttribute("asignaturas", servicios().asignaturas().listar());
+                var pagina = servicios().asignaturas().buscar(busqueda(req));
+                req.setAttribute("pagina", pagina);
+                req.setAttribute("asignaturas", pagina.elementos());
                 vista(req, resp, "asignaturas/lista");
             }
         }
@@ -45,6 +47,22 @@ public class AsignaturasServlet extends ControladorBase {
                     error(req, e.getMessage());
                 }
                 redirigir(req, resp, "/asignaturas");
+            }
+            case "asignarAula", "quitarAula" -> {
+                int id = id(req);
+                try {
+                    int aula = entero(req, "aula");
+                    if ("asignarAula".equals(accion(req))) {
+                        servicios().aulas().asignar(id, aula);
+                        aviso(req, "Aula asignada");
+                    } else {
+                        servicios().aulas().quitar(id, aula);
+                        aviso(req, "Aula quitada");
+                    }
+                } catch (ErrorNegocio e) {
+                    error(req, e.getMessage());
+                }
+                redirigir(req, resp, "/asignaturas?accion=ver&id=" + id);
             }
             case "matricular", "desmatricular" -> {
                 int id = id(req);
@@ -89,6 +107,8 @@ public class AsignaturasServlet extends ControladorBase {
         req.setAttribute("asignatura", servicios().asignaturas().buscar(id));
         req.setAttribute("matriculados", servicios().matriculas().alumnosDe(id));
         req.setAttribute("candidatos", servicios().matriculas().alumnosNoMatriculadosEn(id));
+        req.setAttribute("aulas", servicios().aulas().aulasDe(id));
+        req.setAttribute("aulasDisponibles", servicios().aulas().aulasDisponiblesPara(id));
         vista(req, resp, "asignaturas/detalle");
     }
 

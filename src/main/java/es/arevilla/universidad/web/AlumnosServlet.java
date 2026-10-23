@@ -24,7 +24,9 @@ public class AlumnosServlet extends ControladorBase {
                 vista(req, resp, "alumnos/detalle");
             }
             default -> {
-                req.setAttribute("alumnos", servicios().alumnos().listar());
+                var pagina = servicios().alumnos().buscar(busqueda(req));
+                req.setAttribute("pagina", pagina);
+                req.setAttribute("alumnos", pagina.elementos());
                 vista(req, resp, "alumnos/lista");
             }
         }

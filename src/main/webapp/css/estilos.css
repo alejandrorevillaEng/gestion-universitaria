@@ -397,6 +397,20 @@ tbody tr:nth-child(n+5) { animation-delay: .12s; }
     .dos-columnas { grid-template-columns: 1fr; }
 }
 
+/* Con nueve secciones el menú no cabe entero en un portátil: primero se esconde el nombre
+   del usuario, después el texto de las secciones de administración y, en tablet, el de todas. */
+@media (max-width: 1600px) {
+    .quien .nombre-usuario { display: none; }
+}
+@media (max-width: 1500px) {
+    .menu a.secundario span { display: none; }
+    .menu a.secundario { padding-inline: .6rem; }
+}
+@media (max-width: 1200px) {
+    .menu a span { display: none; }
+    .menu a { padding-inline: .6rem; }
+}
+
 @media (max-width: 720px) {
     .barra { gap: .6rem; }
     .menu { order: 3; flex-basis: 100%; overflow-x: auto; flex-wrap: nowrap; }
@@ -409,3 +423,18 @@ tbody tr:nth-child(n+5) { animation-delay: .12s; }
 }
 .acceso-marca .pie-marca { color: rgb(245 243 238 / .55); font-size: .85rem; }
 th.num { font-family: inherit; font-size: .8rem; }
+
+/* Buscador y paginación */
+.buscador { display: flex; align-items: center; gap: .6rem; max-width: 520px; margin: -0.5rem 0 1.25rem; padding: .15rem .25rem .15rem .85rem;
+    background: var(--superficie); border-radius: 12px; outline: 1px solid var(--borde); box-shadow: var(--sombra); }
+.buscador:focus-within { outline-color: var(--acento); }
+.buscador .icono { color: var(--texto-tenue); }
+.buscador input { flex: 1; border: 0; background: transparent; font: inherit; color: var(--texto); padding: .55rem 0; outline: none; }
+.buscador .enlace-accion { font-size: .85rem; white-space: nowrap; padding-right: .6rem; }
+.paginacion { display: flex; align-items: center; justify-content: center; gap: 1rem; margin: 1.25rem 0 0; }
+.desactivado { opacity: .45; pointer-events: none; }
+
+/* Aulas de una asignatura */
+.chips { display: flex; flex-wrap: wrap; gap: .6rem; margin-bottom: 1rem; }
+.chip { display: inline-flex; align-items: center; gap: .6rem; margin: 0; padding: .45rem .5rem .45rem .9rem;
+    background: var(--superficie); border-radius: 12px; outline: 1px solid var(--borde); box-shadow: var(--sombra); }

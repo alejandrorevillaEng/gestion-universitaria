@@ -8,10 +8,9 @@ services:
       MYSQL_USER: universidad
       MYSQL_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD en .env}
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    # Las tablas las crea la aplicación al arrancar con Flyway (src/main/resources/db/migration).
     volumes:
       - datos:/var/lib/mysql
-      # El mismo script que usa la aplicación: crea las tablas y el usuario admin.
-      - ./src/main/resources/db/dad2.sql:/docker-entrypoint-initdb.d/01-esquema.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -u universidad -p$$MYSQL_PASSWORD --silent"]
       interval: 5s
@@ -26,7 +25,7 @@ services:
       DB_URL: "jdbc:mysql://db:3306/universidad?allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8"
       DB_USER: universidad
       DB_PASSWORD: ${DB_PASSWORD}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Define ADMIN_PASSWORD en .env}
       DATOS_EJEMPLO: ${DATOS_EJEMPLO:-true}
     depends_on:
       db:

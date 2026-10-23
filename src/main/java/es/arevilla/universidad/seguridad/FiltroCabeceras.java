@@ -26,6 +26,7 @@ public class FiltroCabeceras extends HttpFilter {
         resp.setHeader("X-Frame-Options", "DENY");
         resp.setHeader("Referrer-Policy", "same-origin");
         resp.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+        if (req.isSecure()) resp.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
         if (!FiltroAutenticacion.esEstatica(FiltroAutenticacion.ruta(req))) {
             resp.setHeader("Cache-Control", "no-store");
         }

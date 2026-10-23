@@ -67,6 +67,13 @@ public abstract class ControladorBase extends HttpServlet {
         return id == null || id.isBlank() ? 0 : Validar.entero(id, "id");
     }
 
+    /** Texto de búsqueda (?q=) y página (?pagina=) de los listados. */
+    protected static es.arevilla.universidad.servicio.Busqueda busqueda(HttpServletRequest req) {
+        String pagina = req.getParameter("pagina");
+        return es.arevilla.universidad.servicio.Busqueda.de(req.getParameter("q"),
+                pagina == null || pagina.isBlank() ? null : Validar.entero(pagina, "página"), null);
+    }
+
     protected static int entero(HttpServletRequest req, String campo) {
         return Validar.entero(req.getParameter(campo), campo);
     }

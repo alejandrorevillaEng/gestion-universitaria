@@ -3,6 +3,7 @@ package es.arevilla.universidad.servicio;
 import es.arevilla.universidad.datos.BaseDatos;
 import es.arevilla.universidad.datos.Jdbc;
 import es.arevilla.universidad.modelo.Asignatura;
+import es.arevilla.universidad.modelo.Pagina;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -29,6 +30,22 @@ public class ServicioAsignaturas {
     public List<Asignatura> listar() {
         return db.transaccion(c -> Jdbc.lista(c, SELECT + " ORDER BY t.nombre, a.nombre",
                 ServicioAsignaturas::mapear));
+    }
+
+    /** Busca por nombre de la asignatura, de la titulación o del profesor, con paginación. */
+    public Pagina<Asignatura> buscar(Busqueda b) {
+        String filtro = " " + """
+                WHERE (LOWER(a.nombre) LIKE ? ESCAPE '!' OR LOWER(t.nombre) LIKE ? ESCAPE '!'
+                        OR LOWER(COALESCE(p.nombre, '')) LIKE ? ESCAPE '!')""";
+        String patron = b.patron();
+        return db.transaccion(c -> {
+            int total = Jdbc.entero(c, """
+                    SELECT COUNT(*) FROM asignatura a JOIN titulacion t ON t.id = a.id_titulacion
+                    LEFT JOIN profesor p ON p.id = a.id_profesor""" + filtro, patron, patron, patron);
+            List<Asignatura> lista = Jdbc.lista(c, SELECT + filtro + " ORDER BY t.nombre, a.nombre LIMIT ? OFFSET ?",
+                    ServicioAsignaturas::mapear, patron, patron, patron, b.tamano(), b.desplazamiento());
+            return new Pagina<>(lista, total, b.pagina(), b.tamano());
+        });
     }
 
     public List<Asignatura> listarPorTitulacion(int idTitulacion) {
@@ -65,6 +82,13 @@ public class ServicioAsignaturas {
             comprobarReferencias(c, a);
             a.setId(id);
             comprobarNombreLibre(c, a, id);
+            int aulaMasPequena = Jdbc.entero(c, """
+                    SELECT COALESCE(MIN(au.capacidad), 0) FROM aula au
+                    JOIN asignatura_aula aa ON aa.id_aula = au.id WHERE aa.id_asignatura = ?""", id);
+            if (aulaMasPequena > 0 && a.getCapacidad() > aulaMasPequena) {
+                throw ErrorNegocio.conflicto("La asignatura se imparte en un aula de " + aulaMasPequena
+                        + " plazas: no puede admitir más alumnos");
+            }
             if (a.getCapacidad() < actual.getMatriculados()) {
                 throw ErrorNegocio.conflicto("La capacidad no puede ser menor que los " + actual.getMatriculados()
                         + " alumnos ya matriculados");

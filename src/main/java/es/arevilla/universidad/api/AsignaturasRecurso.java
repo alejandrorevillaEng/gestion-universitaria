@@ -2,6 +2,8 @@ package es.arevilla.universidad.api;
 
 import es.arevilla.universidad.modelo.Alumno;
 import es.arevilla.universidad.modelo.Asignatura;
+import es.arevilla.universidad.modelo.Aula;
+import es.arevilla.universidad.servicio.Busqueda;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -10,6 +12,7 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -22,15 +25,20 @@ import java.util.List;
  *   DELETE /asignaturas/{id}/profesor
  *   PUT    /asignaturas/{id}/alumnos/{idAlumno}   (matricular)
  *   DELETE /asignaturas/{id}/alumnos/{idAlumno}   (desmatricular)
+ *   PUT    /asignaturas/{id}/aulas/{idAula}
+ *   DELETE /asignaturas/{id}/aulas/{idAula}
  */
 @Path("/asignaturas")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class AsignaturasRecurso extends RecursoBase {
 
+    /** Sin parámetros devuelve todo; con q, pagina o tam filtra y pagina (total en X-Total-Count). */
     @GET
-    public List<Asignatura> listar() {
-        return servicios().asignaturas().listar();
+    public Response listar(@QueryParam("q") String q, @QueryParam("pagina") Integer pagina,
+                           @QueryParam("tam") Integer tamano) {
+        if (!pideBusqueda(q, pagina, tamano)) return Response.ok(servicios().asignaturas().listar()).build();
+        return pagina(servicios().asignaturas().buscar(Busqueda.de(q, pagina, tamano)));
     }
 
     @GET
@@ -97,6 +105,27 @@ public class AsignaturasRecurso extends RecursoBase {
     @Path("/{id}/alumnos/{idAlumno}")
     public Response desmatricular(@PathParam("id") int id, @PathParam("idAlumno") int idAlumno) {
         servicios().matriculas().desmatricular(id, idAlumno);
+        return Response.noContent().build();
+    }
+
+    @GET
+    @Path("/{id}/aulas")
+    public List<Aula> aulas(@PathParam("id") int id) {
+        servicios().asignaturas().buscar(id);
+        return servicios().aulas().aulasDe(id);
+    }
+
+    @PUT
+    @Path("/{id}/aulas/{idAula}")
+    public Response asignarAula(@PathParam("id") int id, @PathParam("idAula") int idAula) {
+        servicios().aulas().asignar(id, idAula);
+        return Response.noContent().build();
+    }
+
+    @DELETE
+    @Path("/{id}/aulas/{idAula}")
+    public Response quitarAula(@PathParam("id") int id, @PathParam("idAula") int idAula) {
+        servicios().aulas().quitar(id, idAula);
         return Response.noContent().build();
     }
 }

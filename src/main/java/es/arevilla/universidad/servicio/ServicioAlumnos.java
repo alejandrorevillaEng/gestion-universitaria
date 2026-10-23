@@ -3,6 +3,7 @@ package es.arevilla.universidad.servicio;
 import es.arevilla.universidad.datos.BaseDatos;
 import es.arevilla.universidad.datos.Jdbc;
 import es.arevilla.universidad.modelo.Alumno;
+import es.arevilla.universidad.modelo.Pagina;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -26,6 +27,20 @@ public class ServicioAlumnos {
     public List<Alumno> listar() {
         return db.transaccion(c -> Jdbc.lista(c, SELECT + " ORDER BY al.apellidos, al.nombre",
                 ServicioAlumnos::mapear));
+    }
+
+    /** Busca por nombre, apellidos o email, con paginación. */
+    public Pagina<Alumno> buscar(Busqueda b) {
+        String filtro = " " + """
+                WHERE (LOWER(al.nombre) LIKE ? ESCAPE '!' OR LOWER(al.apellidos) LIKE ? ESCAPE '!'
+                        OR LOWER(al.email) LIKE ? ESCAPE '!')""";
+        String patron = b.patron();
+        return db.transaccion(c -> {
+            int total = Jdbc.entero(c, "SELECT COUNT(*) FROM alumno al" + filtro, patron, patron, patron);
+            List<Alumno> lista = Jdbc.lista(c, SELECT + filtro + " ORDER BY al.apellidos, al.nombre LIMIT ? OFFSET ?",
+                    ServicioAlumnos::mapear, patron, patron, patron, b.tamano(), b.desplazamiento());
+            return new Pagina<>(lista, total, b.pagina(), b.tamano());
+        });
     }
 
     public Alumno buscar(int id) {

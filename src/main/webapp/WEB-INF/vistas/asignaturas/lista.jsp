@@ -2,10 +2,15 @@
 <c:set var="titulo" value="Asignaturas"/><c:set var="seccion" value="asignaturas"/>
 <%@ include file="/WEB-INF/vistas/fragmentos/cabecera.jspf" %>
 <div class="encabezado">
-    <div><span class="antetitulo">${fn:length(asignaturas)} en total</span><h1>Asignaturas</h1></div>
+    <div><span class="antetitulo">${pagina.total} en total</span><h1>Asignaturas</h1></div>
     <a class="boton" href="${ctx}/asignaturas?accion=nuevo"><svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-mas"/></svg>Nueva asignatura</a>
 </div>
+<c:set var="rutaBuscar" value="/asignaturas"/><c:set var="textoBuscar" value="Buscar por asignatura, titulación o profesor"/>
+<%@ include file="/WEB-INF/vistas/fragmentos/buscador.jspf" %>
 <c:choose>
+<c:when test="${empty asignaturas and not empty param.q}">
+    <p class="vacio">Nada coincide con «<c:out value="${param.q}"/>».</p>
+</c:when>
 <c:when test="${empty asignaturas}">
     <p class="vacio">Todavía no hay asignaturas. Crea primero una titulación y después la asignatura.</p>
 </c:when>
@@ -37,4 +42,5 @@
 </div>
 </c:otherwise>
 </c:choose>
+<%@ include file="/WEB-INF/vistas/fragmentos/paginacion.jspf" %>
 <%@ include file="/WEB-INF/vistas/fragmentos/pie.jspf" %>

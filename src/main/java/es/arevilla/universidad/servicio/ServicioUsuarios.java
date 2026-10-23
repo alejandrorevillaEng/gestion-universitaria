@@ -34,11 +34,14 @@ public class ServicioUsuarios {
      * nombre, bloquea los intentos un rato.
      */
     public Optional<Usuario> autenticar(String nombre, String contrasena) {
-        String clave = nombre == null ? "" : nombre.strip().toLowerCase();
+        if (contrasena == null || contrasena.length() > 128 || nombre == null || nombre.length() > 50) {
+            return Optional.empty();
+        }
+        String clave = nombre.strip().toLowerCase();
         if (limite.bloqueado(clave)) {
             throw ErrorNegocio.prohibido("Demasiados intentos fallidos. Espera unos minutos y vuelve a probar.");
         }
-        Optional<Usuario> usuario = db.transaccion(c -> buscarPorNombre(c, nombre == null ? "" : nombre.strip()));
+        Optional<Usuario> usuario = db.transaccion(c -> buscarPorNombre(c, nombre.strip()));
         String hash = usuario.map(Usuario::getHashContrasena).orElse(HASH_SENUELO);
         boolean correcta = Contrasenas.verificar(contrasena, hash) && usuario.isPresent();
         if (!correcta) {

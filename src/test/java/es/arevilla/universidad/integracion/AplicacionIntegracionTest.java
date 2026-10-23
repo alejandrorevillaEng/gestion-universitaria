@@ -245,7 +245,8 @@ class AplicacionIntegracionTest {
                 "/asignaturas?accion=editar&id=1", "/titulaciones", "/titulaciones?accion=ver&id=1",
                 "/titulaciones?accion=nuevo", "/profesores", "/profesores?accion=editar&id=1", "/alumnos",
                 "/alumnos?accion=ver&id=1", "/alumnos?accion=nuevo", "/usuarios", "/usuarios?accion=editar&id=1",
-                "/estadisticas", "/panel-api", "/"}) {
+                "/estadisticas", "/panel-api", "/", "/aulas", "/aulas?accion=nuevo", "/aulas?accion=editar&id=1",
+                "/asignaturas?q=progra", "/asignaturas?q=%25&pagina=1", "/alumnos?q=a&pagina=1"}) {
             HttpResponse<String> r = n.get(ruta);
             assertEquals(200, r.statusCode(), ruta);
             assertTrue(r.body().contains("</html>"), ruta);
@@ -302,5 +303,68 @@ class AplicacionIntegracionTest {
         HttpResponse<String> usuarios = n.api("GET", "/usuarios", null, t);
         assertEquals(200, usuarios.statusCode());
         assertFalse(usuarios.body().contains("pbkdf2"), "El hash nunca debe salir por la API");
+    }
+
+    @Test
+    @DisplayName("API REST: aulas con sus reglas de capacidad, búsqueda paginada y comprobación de salud")
+    void apiAulasYBusqueda() throws Exception {
+        Navegador n = new Navegador();
+        HttpResponse<String> salud = n.get("/api/salud");
+        assertEquals(200, salud.statusCode(), "La comprobación de salud no pide sesión");
+        assertEquals("{\"estado\":\"ok\"}", salud.body());
+
+        String t = tokenApi(n.api("POST", "/sesion", "{\"usuario\":\"admin\",\"contrasena\":\"admin\"}", null));
+        String idTit = idDe(n.api("POST", "/titulaciones", "{\"nombre\":\"Grado Aulas\"}", t).body());
+        String idAsig = idDe(n.api("POST", "/asignaturas",
+                "{\"nombre\":\"Asignatura con aula\",\"creditos\":6,\"capacidad\":30,\"idTitulacion\":" + idTit + "}", t).body());
+
+        HttpResponse<String> pequena = n.api("POST", "/aulas", "{\"nombre\":\"API-1\",\"capacidad\":10}", t);
+        assertEquals(201, pequena.statusCode(), pequena.body());
+        String idGrande = idDe(n.api("POST", "/aulas", "{\"nombre\":\"API-2\",\"edificio\":\"Norte\",\"capacidad\":40}", t).body());
+
+        assertEquals(409, n.api("PUT", "/asignaturas/" + idAsig + "/aulas/" + idDe(pequena.body()), null, t).statusCode());
+        assertEquals(204, n.api("PUT", "/asignaturas/" + idAsig + "/aulas/" + idGrande, null, t).statusCode());
+        assertTrue(n.api("GET", "/asignaturas/" + idAsig + "/aulas", null, t).body().contains("\"nombre\":\"API-2\""));
+        assertEquals(409, n.api("DELETE", "/aulas/" + idGrande, null, t).statusCode());
+        assertEquals(204, n.api("DELETE", "/asignaturas/" + idAsig + "/aulas/" + idGrande, null, t).statusCode());
+        assertEquals(204, n.api("DELETE", "/aulas/" + idGrande, null, t).statusCode());
+
+        HttpResponse<String> todas = n.api("GET", "/asignaturas", null, t);
+        assertTrue(todas.headers().firstValue("X-Total-Count").isEmpty(), "Sin parámetros, la lista completa de siempre");
+        HttpResponse<String> buscada = n.api("GET", "/asignaturas?q=con%20aula&tam=5", null, t);
+        assertEquals(200, buscada.statusCode());
+        assertEquals("1", buscada.headers().firstValue("X-Total-Count").orElse(""));
+        assertTrue(buscada.body().startsWith("[") && buscada.body().contains("Asignatura con aula"));
+        assertEquals(400, n.api("GET", "/alumnos?tam=500", null, t).statusCode());
+    }
+
+    @Test
+    @DisplayName("Aulas desde la web: alta, error de validación, asignación a una asignatura y borrado protegido")
+    void aulasDesdeLaWeb() throws Exception {
+        Navegador n = new Navegador();
+        n.entrar("admin", "admin");
+        String t = n.token("/aulas");
+
+        HttpResponse<String> alta = n.post("/aulas", campos("_csrf", t, "nombre", "Aula web", "edificio", "Sur", "capacidad", "45"));
+        assertEquals(302, alta.statusCode());
+        assertTrue(n.get("/aulas").body().contains("Aula web"));
+
+        HttpResponse<String> invalida = n.post("/aulas", campos("_csrf", t, "nombre", "Aula mala", "capacidad", "0"));
+        assertEquals(200, invalida.statusCode(), "Un dato no válido vuelve al formulario con el error");
+        assertTrue(invalida.body().contains("aviso-error"));
+
+        Matcher m = Pattern.compile("\"id\":(\\d+),\"nombre\":\"Aula web\"").matcher(n.api("GET", "/aulas", null, null).body());
+        assertTrue(m.find());
+        String idAula = m.group(1);
+
+        n.post("/asignaturas", campos("_csrf", t, "accion", "asignarAula", "id", "1", "aula", idAula));
+        assertTrue(n.get("/asignaturas?accion=ver&id=1").body().contains("Aula web"));
+
+        n.post("/aulas", campos("_csrf", t, "accion", "eliminar", "id", idAula));
+        assertTrue(n.get("/aulas").body().contains("Aula web"), "Con asignaturas no se borra");
+
+        n.post("/asignaturas", campos("_csrf", t, "accion", "quitarAula", "id", "1", "aula", idAula));
+        n.post("/aulas", campos("_csrf", t, "accion", "eliminar", "id", idAula));
+        assertFalse(n.get("/aulas").body().contains("Aula web"));
     }
 }

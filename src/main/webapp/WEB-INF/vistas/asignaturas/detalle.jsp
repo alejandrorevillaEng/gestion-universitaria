@@ -22,6 +22,42 @@
 </dl>
 
 <div class="encabezado">
+    <h2>Aulas</h2>
+</div>
+<c:choose>
+<c:when test="${empty aulas}"><p class="vacio">Todavía no tiene aula asignada.</p></c:when>
+<c:otherwise>
+<div class="chips">
+    <c:forEach var="au" items="${aulas}">
+    <form method="post" action="${ctx}/asignaturas" class="chip" data-confirmar="${fn:escapeXml('¿Quitar el aula '.concat(au.nombre).concat('?'))}">
+        <input type="hidden" name="_csrf" value="${fn:escapeXml(requestScope.csrfToken)}">
+        <input type="hidden" name="accion" value="quitarAula">
+        <input type="hidden" name="id" value="${asignatura.id}">
+        <input type="hidden" name="aula" value="${au.id}">
+        <strong><c:out value="${au.nombre}"/></strong><span class="detalle"><c:out value="${au.edificio}"/> · ${au.capacidad} plazas</span>
+        <button type="submit" class="boton boton-peligro boton-icono" title="Quitar aula" aria-label="Quitar aula"><svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-papelera"/></svg></button>
+    </form>
+    </c:forEach>
+</div>
+</c:otherwise>
+</c:choose>
+<c:if test="${not empty aulasDisponibles}">
+<form method="post" action="${ctx}/asignaturas" class="formulario formulario-linea">
+    <input type="hidden" name="_csrf" value="${fn:escapeXml(requestScope.csrfToken)}">
+    <input type="hidden" name="accion" value="asignarAula">
+    <input type="hidden" name="id" value="${asignatura.id}">
+    <label for="aula">Asignar aula</label>
+    <select id="aula" name="aula" required>
+        <c:forEach var="au" items="${aulasDisponibles}">
+            <option value="${au.id}"><c:out value="${au.nombre}"/> · ${au.capacidad} plazas</option>
+        </c:forEach>
+    </select>
+    <button type="submit" class="boton boton-suave">Asignar</button>
+    <span class="detalle">Solo aparecen aulas con al menos ${asignatura.capacidad} plazas.</span>
+</form>
+</c:if>
+
+<div class="encabezado">
     <h2>Alumnos matriculados</h2>
     <a class="boton boton-suave" href="${ctx}/asignaturas?accion=exportar&amp;id=${asignatura.id}"><svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-descargar"/></svg>Descargar CSV</a>
 </div>

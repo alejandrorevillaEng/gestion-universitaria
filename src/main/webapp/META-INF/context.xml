@@ -4,6 +4,9 @@
 <Context>
     <!-- La cookie de sesión no viaja en peticiones iniciadas desde otras webs (defensa extra contra CSRF). -->
     <CookieProcessor sameSiteCookies="lax"/>
+    <!-- Detrás de un proxy con HTTPS (Nginx, Render, Fly...): la app sabe que la petición es
+         segura, marca la cookie como Secure y envía HSTS. -->
+    <Valve className="org.apache.catalina.valves.RemoteIpValve" protocolHeader="X-Forwarded-Proto"/>
     <!-- No guardar sesiones en disco al parar Tomcat. -->
     <Manager pathname=""/>
 </Context>

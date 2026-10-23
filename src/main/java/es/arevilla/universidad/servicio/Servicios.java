@@ -15,6 +15,7 @@ public record Servicios(BaseDatos db,
                         ServicioAsignaturas asignaturas,
                         ServicioAlumnos alumnos,
                         ServicioMatriculas matriculas,
+                        ServicioAulas aulas,
                         ServicioEstadisticas estadisticas) implements AutoCloseable {
 
     public static final String ATRIBUTO = Servicios.class.getName();
@@ -27,12 +28,13 @@ public record Servicios(BaseDatos db,
                 new ServicioAsignaturas(db),
                 new ServicioAlumnos(db),
                 new ServicioMatriculas(db),
+                new ServicioAulas(db),
                 new ServicioEstadisticas(db));
     }
 
-    /** Crea el esquema (dad2.sql) y, si la base de datos está vacía, carga los datos de ejemplo. */
+    /** Aplica las migraciones y, si la base de datos está vacía, carga los datos de ejemplo. */
     public void prepararBaseDatos(boolean datosEjemplo) {
-        db.ejecutarScript("/db/dad2.sql");
+        db.migrar();
         if (datosEjemplo && titulaciones.listar().isEmpty()) db.ejecutarScript("/db/datos-ejemplo.sql");
     }
 

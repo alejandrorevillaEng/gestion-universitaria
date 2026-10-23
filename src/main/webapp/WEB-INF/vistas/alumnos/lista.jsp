@@ -2,10 +2,15 @@
 <c:set var="titulo" value="Alumnos"/><c:set var="seccion" value="alumnos"/>
 <%@ include file="/WEB-INF/vistas/fragmentos/cabecera.jspf" %>
 <div class="encabezado">
-    <div><span class="antetitulo">${fn:length(alumnos)} en total</span><h1>Alumnos</h1></div>
+    <div><span class="antetitulo">${pagina.total} en total</span><h1>Alumnos</h1></div>
     <a class="boton" href="${ctx}/alumnos?accion=nuevo"><svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-mas"/></svg>Nuevo alumno</a>
 </div>
+<c:set var="rutaBuscar" value="/alumnos"/><c:set var="textoBuscar" value="Buscar por nombre, apellidos o email"/>
+<%@ include file="/WEB-INF/vistas/fragmentos/buscador.jspf" %>
 <c:choose>
+<c:when test="${empty alumnos and not empty param.q}">
+    <p class="vacio">Nada coincide con «<c:out value="${param.q}"/>».</p>
+</c:when>
 <c:when test="${empty alumnos}">
     <p class="vacio">No hay alumnos todavía.</p>
 </c:when>
@@ -33,4 +38,5 @@
 </div>
 </c:otherwise>
 </c:choose>
+<%@ include file="/WEB-INF/vistas/fragmentos/paginacion.jspf" %>
 <%@ include file="/WEB-INF/vistas/fragmentos/pie.jspf" %>

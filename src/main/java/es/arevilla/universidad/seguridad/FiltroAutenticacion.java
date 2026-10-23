@@ -21,7 +21,7 @@ import java.util.Set;
  */
 public class FiltroAutenticacion extends HttpFilter {
 
-    private static final Set<String> PUBLICAS = Set.of("/login", "/registro", "/api/sesion", "/favicon.ico");
+    private static final Set<String> PUBLICAS = Set.of("/login", "/registro", "/api/sesion", "/api/salud", "/favicon.ico");
     private static final List<String> PREFIJOS_ESTATICOS = List.of("/css/", "/js/", "/img/", "/fuentes/");
     private static final List<String> SOLO_ADMIN = List.of("/usuarios", "/estadisticas", "/api/usuarios",
             "/api/estadisticas");

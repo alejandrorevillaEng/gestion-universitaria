@@ -66,7 +66,7 @@ public class BaseDatos implements AutoCloseable {
         }
     }
 
-    /** Ejecuta un script SQL del classpath. dad2.sql es idempotente, así que se puede lanzar en cada arranque. */
+    /** Ejecuta un script SQL del classpath (los datos de ejemplo). */
     public void ejecutarScript(String recurso) {
         String sql;
         try (InputStream in = BaseDatos.class.getResourceAsStream(recurso)) {
@@ -96,6 +96,15 @@ public class BaseDatos implements AutoCloseable {
             if (!sentencia.isBlank()) sentencias.add(sentencia);
         }
         return sentencias;
+    }
+
+    /** Aplica las migraciones pendientes de db/migration (V1__esquema.sql, V2__aulas.sql...). */
+    public void migrar() {
+        org.flywaydb.core.Flyway.configure()
+                .dataSource(origen)
+                .locations("classpath:db/migration")
+                .load()
+                .migrate();
     }
 
     @Override

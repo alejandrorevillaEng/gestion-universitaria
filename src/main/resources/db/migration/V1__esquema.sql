@@ -1,5 +1,5 @@
--- Esquema de la aplicación. Vale para MySQL 8 y para H2 en modo MySQL.
--- Es idempotente: se puede ejecutar en cada arranque sin perder datos.
+-- V1: esquema inicial (el dad2.sql que pedía el enunciado). Vale para MySQL 8 y para H2 en modo MySQL.
+-- Lo aplica Flyway al arrancar; los cambios posteriores van en migraciones nuevas (V2, V3...).
 
 CREATE TABLE IF NOT EXISTS usuario (
     id              INT AUTO_INCREMENT PRIMARY KEY,

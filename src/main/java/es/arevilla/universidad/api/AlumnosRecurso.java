@@ -1,6 +1,7 @@
 package es.arevilla.universidad.api;
 
 import es.arevilla.universidad.modelo.Alumno;
+import es.arevilla.universidad.servicio.Busqueda;
 import es.arevilla.universidad.modelo.Asignatura;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -10,6 +11,7 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -20,9 +22,12 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 public class AlumnosRecurso extends RecursoBase {
 
+    /** Sin parámetros devuelve todo; con q, pagina o tam filtra y pagina (total en X-Total-Count). */
     @GET
-    public List<Alumno> listar() {
-        return servicios().alumnos().listar();
+    public Response listar(@QueryParam("q") String q, @QueryParam("pagina") Integer pagina,
+                           @QueryParam("tam") Integer tamano) {
+        if (!pideBusqueda(q, pagina, tamano)) return Response.ok(servicios().alumnos().listar()).build();
+        return pagina(servicios().alumnos().buscar(Busqueda.de(q, pagina, tamano)));
     }
 
     @GET

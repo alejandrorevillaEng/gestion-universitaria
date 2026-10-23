@@ -1,0 +1,16 @@
+<%-- Paginación. Variables: pagina (modelo.Pagina) y rutaBuscar. --%>
+<c:if test="${pagina.totalPaginas > 1}">
+<nav class="paginacion" aria-label="Páginas">
+    <c:url var="anterior" value="${rutaBuscar}"><c:param name="q" value="${param.q}"/><c:param name="pagina" value="${pagina.pagina - 1}"/></c:url>
+    <c:url var="siguiente" value="${rutaBuscar}"><c:param name="q" value="${param.q}"/><c:param name="pagina" value="${pagina.pagina + 1}"/></c:url>
+    <c:choose>
+        <c:when test="${pagina.hayAnterior}"><a class="boton boton-suave boton-pequeno" href="${anterior}" rel="prev">Anterior</a></c:when>
+        <c:otherwise><span class="boton boton-suave boton-pequeno desactivado" aria-disabled="true">Anterior</span></c:otherwise>
+    </c:choose>
+    <span class="detalle">Página ${pagina.pagina} de ${pagina.totalPaginas}</span>
+    <c:choose>
+        <c:when test="${pagina.haySiguiente}"><a class="boton boton-suave boton-pequeno" href="${siguiente}" rel="next">Siguiente</a></c:when>
+        <c:otherwise><span class="boton boton-suave boton-pequeno desactivado" aria-disabled="true">Siguiente</span></c:otherwise>
+    </c:choose>
+</nav>
+</c:if>

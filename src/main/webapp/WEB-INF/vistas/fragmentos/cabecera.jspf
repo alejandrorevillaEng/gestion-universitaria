@@ -31,13 +31,15 @@
             <svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-profesores"/></svg><span>Profesores</span></a>
         <a href="${ctx}/alumnos" class="${seccion == 'alumnos' ? 'activo' : ''}" title="Alumnos">
             <svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-alumnos"/></svg><span>Alumnos</span></a>
+        <a href="${ctx}/aulas" class="${seccion == 'aulas' ? 'activo' : ''}" title="Aulas">
+            <svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-aula"/></svg><span>Aulas</span></a>
         <c:if test="${yo.esAdmin()}">
-        <a href="${ctx}/estadisticas" class="${seccion == 'estadisticas' ? 'activo' : ''}" title="Estadísticas">
+        <a href="${ctx}/estadisticas" class="secundario ${seccion == 'estadisticas' ? 'activo' : ''}" title="Estadísticas">
             <svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-estadisticas"/></svg><span>Estadísticas</span></a>
-        <a href="${ctx}/usuarios" class="${seccion == 'usuarios' ? 'activo' : ''}" title="Usuarios">
+        <a href="${ctx}/usuarios" class="secundario ${seccion == 'usuarios' ? 'activo' : ''}" title="Usuarios">
             <svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-usuarios"/></svg><span>Usuarios</span></a>
         </c:if>
-        <a href="${ctx}/panel-api" class="${seccion == 'api' ? 'activo' : ''}" title="API REST">
+        <a href="${ctx}/panel-api" class="secundario ${seccion == 'api' ? 'activo' : ''}" title="API REST">
             <svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-api"/></svg><span>API</span></a>
     </nav>
     <form class="salir" method="post" action="${ctx}/logout">

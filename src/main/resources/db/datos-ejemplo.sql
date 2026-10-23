@@ -32,6 +32,19 @@ INSERT INTO asignatura (nombre, creditos, capacidad, id_titulacion, id_profesor)
 SELECT 'Estadística', 6, 45, t.id, NULL FROM titulacion t
 WHERE t.nombre = 'Grado en Matemáticas';
 
+INSERT INTO aula (nombre, edificio, capacidad) VALUES
+    ('A-101', 'Aulario A', 60),
+    ('A-204', 'Aulario A', 35),
+    ('L-03', 'Laboratorios', 24);
+
+INSERT INTO asignatura_aula (id_asignatura, id_aula)
+SELECT a.id, au.id FROM asignatura a, aula au
+WHERE a.nombre = 'Programación I' AND au.nombre = 'A-101';
+
+INSERT INTO asignatura_aula (id_asignatura, id_aula)
+SELECT a.id, au.id FROM asignatura a, aula au
+WHERE a.nombre = 'Aplicaciones Distribuidas' AND au.nombre IN ('A-204', 'L-03');
+
 INSERT INTO alumno (nombre, apellidos, email) VALUES
     ('Marta', 'Gil Romero', 'marta.gil@ejemplo.es'),
     ('Daniel', 'Soto Prieto', 'daniel.soto@ejemplo.es'),
