@@ -1,0 +1,8 @@
+<%-- Botón de borrar: formulario POST con token CSRF. app.js pide confirmación con el texto de data-confirmar.
+     Variables: rutaBorrar, idBorrar, textoConfirmar. --%>
+<form method="post" action="${ctx}${rutaBorrar}" class="en-linea" data-confirmar="${fn:escapeXml(textoConfirmar)}">
+    <input type="hidden" name="_csrf" value="${fn:escapeXml(requestScope.csrfToken)}">
+    <input type="hidden" name="accion" value="eliminar">
+    <input type="hidden" name="id" value="${idBorrar}">
+    <button type="submit" class="boton boton-peligro boton-pequeno">Borrar</button>
+</form>

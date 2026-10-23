@@ -1,0 +1,84 @@
+<%@ include file="/WEB-INF/vistas/fragmentos/directivas.jspf" %>
+<c:set var="titulo" value="${asignatura.nombre}"/><c:set var="seccion" value="asignaturas"/>
+<%@ include file="/WEB-INF/vistas/fragmentos/cabecera.jspf" %>
+<p class="migas"><a href="${ctx}/asignaturas">Asignaturas</a> /</p>
+<div class="encabezado">
+    <h1><c:out value="${asignatura.nombre}"/></h1>
+    <a class="boton boton-suave" href="${ctx}/asignaturas?accion=editar&amp;id=${asignatura.id}">Editar</a>
+</div>
+
+<dl class="ficha">
+    <dt>Titulación</dt>
+    <dd><a href="${ctx}/titulaciones?accion=ver&amp;id=${asignatura.idTitulacion}"><c:out value="${asignatura.nombreTitulacion}"/></a></dd>
+    <dt>Profesor</dt>
+    <dd><c:out value="${empty asignatura.nombreProfesor ? 'Sin asignar' : asignatura.nombreProfesor}"/></dd>
+    <dt>Créditos</dt>
+    <dd>${asignatura.creditos} ECTS</dd>
+    <dt>Ocupación</dt>
+    <dd>
+        <meter min="0" max="${asignatura.capacidad}" value="${asignatura.matriculados}" high="${asignatura.capacidad * 0.9}"></meter>
+        ${asignatura.matriculados} de ${asignatura.capacidad} plazas (${asignatura.ocupacion} %)
+    </dd>
+</dl>
+
+<div class="encabezado">
+    <h2>Alumnos matriculados</h2>
+    <a class="boton boton-suave" href="${ctx}/asignaturas?accion=exportar&amp;id=${asignatura.id}">Descargar CSV</a>
+</div>
+
+<c:choose>
+<c:when test="${asignatura.plazasLibres == 0}">
+    <p class="aviso aviso-info">La asignatura está completa: no admite más matrículas.</p>
+</c:when>
+<c:when test="${empty candidatos}">
+    <p class="vacio">No quedan alumnos por matricular. <a href="${ctx}/alumnos?accion=nuevo">Da de alta uno</a>.</p>
+</c:when>
+<c:otherwise>
+<form method="post" action="${ctx}/asignaturas" class="formulario formulario-linea">
+    <input type="hidden" name="_csrf" value="${fn:escapeXml(requestScope.csrfToken)}">
+    <input type="hidden" name="accion" value="matricular">
+    <input type="hidden" name="id" value="${asignatura.id}">
+    <label for="alumno">Matricular a</label>
+    <select id="alumno" name="alumno" required>
+        <c:forEach var="al" items="${candidatos}">
+            <option value="${al.id}"><c:out value="${al.apellidos}, ${al.nombre}"/></option>
+        </c:forEach>
+    </select>
+    <button type="submit" class="boton">Matricular</button>
+    <span class="detalle">${asignatura.plazasLibres} plaza(s) libre(s)</span>
+</form>
+</c:otherwise>
+</c:choose>
+
+<c:choose>
+<c:when test="${empty matriculados}">
+    <p class="vacio">Nadie matriculado todavía.</p>
+</c:when>
+<c:otherwise>
+<div class="tabla-movil">
+<table>
+    <thead><tr><th>Apellidos</th><th>Nombre</th><th>Email</th><th></th></tr></thead>
+    <tbody>
+    <c:forEach var="al" items="${matriculados}">
+    <tr>
+        <td><a href="${ctx}/alumnos?accion=ver&amp;id=${al.id}"><c:out value="${al.apellidos}"/></a></td>
+        <td><c:out value="${al.nombre}"/></td>
+        <td><c:out value="${al.email}"/></td>
+        <td class="acciones">
+            <form method="post" action="${ctx}/asignaturas" class="en-linea"
+                  data-confirmar="${fn:escapeXml('¿Desmatricular a '.concat(al.nombre).concat('?'))}">
+                <input type="hidden" name="_csrf" value="${fn:escapeXml(requestScope.csrfToken)}">
+                <input type="hidden" name="accion" value="desmatricular">
+                <input type="hidden" name="id" value="${asignatura.id}">
+                <input type="hidden" name="alumno" value="${al.id}">
+                <button type="submit" class="boton boton-suave boton-pequeno">Desmatricular</button>
+            </form>
+        </td>
+    </tr>
+    </c:forEach>
+    </tbody>
+</table>
+</div>
+</c:otherwise>
+</c:choose>
+<%@ include file="/WEB-INF/vistas/fragmentos/pie.jspf" %>
