@@ -1,5 +1,5 @@
 # Imagen de producción: compila el WAR con Maven y lo despliega en Tomcat 11.
-FROM maven:3.9-eclipse-temurin-21 AS compilacion
+FROM maven:3.9-eclipse-temurin-26 AS compilacion
 WORKDIR /src
 COPY pom.xml .
 RUN mvn -B -q dependency:go-offline
