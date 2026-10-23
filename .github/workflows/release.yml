@@ -42,7 +42,7 @@ jobs:
           war="universidad-$version.war"
           cp target/universidad.war "$war"
           sha256sum "$war" > "$war.sha256"
-          awk -v v="$version" '$0 ~ "^## \\[" v "\\]" {f=1; next} /^## \[/ {f=0} f' CHANGELOG.md > notas.md
+          awk -v v="$version" 'index($0, "## [" v "]") == 1 {f=1; next} /^## \[/ {f=0} f' CHANGELOG.md > notas.md
           gh release create "$GITHUB_REF_NAME" "$war" "$war.sha256" --title "$GITHUB_REF_NAME" --notes-file notas.md
 
       - name: Imagen en GitHub Packages

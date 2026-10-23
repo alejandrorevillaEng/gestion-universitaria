@@ -1,0 +1,536 @@
+openapi: 3.1.0
+info:
+  title: Gestión universitaria
+  version: 1.1.0
+  description: |
+    API REST de la aplicación. Comparte servicios, datos y reglas con la web.
+
+    Autenticación: `POST /api/sesion` abre una sesión (cookie `JSESSIONID`) y devuelve un
+    `csrfToken`. Toda petición que cambia datos (POST, PUT, DELETE) lleva ese token en la
+    cabecera `X-CSRF-Token`. Los errores siempre tienen la forma `{"error": "mensaje"}`.
+
+    Este fichero lo comprueba un test: si se añade un endpoint y no se documenta aquí, falla la build.
+  license:
+    name: MIT
+servers:
+  - url: http://localhost:8080/api
+security:
+  - sesion: []
+tags:
+  - name: Sesión
+  - name: Titulaciones
+  - name: Profesores
+  - name: Asignaturas
+  - name: Alumnos
+  - name: Aulas
+  - name: Administración
+  - name: Operación
+
+paths:
+  /sesion:
+    post:
+      tags: [Sesión]
+      summary: Iniciar sesión
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Credenciales' }
+      responses:
+        '200': { $ref: '#/components/responses/EstadoSesion' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+    get:
+      tags: [Sesión]
+      summary: Usuario de la sesión actual y su token CSRF
+      responses:
+        '200': { $ref: '#/components/responses/EstadoSesion' }
+        '401': { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Sesión]
+      summary: Cerrar sesión
+      responses:
+        '204': { description: Sesión cerrada }
+
+  /titulaciones:
+    get:
+      tags: [Titulaciones]
+      summary: Listar titulaciones
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Titulacion' } } } } }
+    post:
+      tags: [Titulaciones]
+      summary: Crear titulación
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Titulacion' } } } }
+      responses:
+        '201': { description: Creada (cabecera Location), content: { application/json: { schema: { $ref: '#/components/schemas/Titulacion' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+  /titulaciones/{id}:
+    parameters: [ { $ref: '#/components/parameters/Id' } ]
+    get:
+      tags: [Titulaciones]
+      summary: Ver una titulación
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Titulacion' } } } }
+        '404': { $ref: '#/components/responses/Error' }
+    put:
+      tags: [Titulaciones]
+      summary: Modificar titulación
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Titulacion' } } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Titulacion' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Titulaciones]
+      summary: Borrar titulación (409 si tiene asignaturas)
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      responses:
+        '204': { description: Borrada }
+        '409': { $ref: '#/components/responses/Error' }
+  /titulaciones/{id}/asignaturas:
+    parameters: [ { $ref: '#/components/parameters/Id' } ]
+    get:
+      tags: [Titulaciones]
+      summary: Asignaturas de una titulación
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Asignatura' } } } } }
+        '404': { $ref: '#/components/responses/Error' }
+
+  /profesores:
+    get:
+      tags: [Profesores]
+      summary: Listar profesores
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Profesor' } } } } }
+    post:
+      tags: [Profesores]
+      summary: Crear profesor
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Profesor' } } } }
+      responses:
+        '201': { description: Creado, content: { application/json: { schema: { $ref: '#/components/schemas/Profesor' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+  /profesores/{id}:
+    parameters: [ { $ref: '#/components/parameters/Id' } ]
+    get:
+      tags: [Profesores]
+      summary: Ver un profesor
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Profesor' } } } }
+        '404': { $ref: '#/components/responses/Error' }
+    put:
+      tags: [Profesores]
+      summary: Modificar profesor
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Profesor' } } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Profesor' } } } }
+        '404': { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Profesores]
+      summary: Borrar profesor (409 si imparte asignaturas)
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      responses:
+        '204': { description: Borrado }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+
+  /asignaturas:
+    get:
+      tags: [Asignaturas]
+      summary: Listar o buscar asignaturas
+      description: Sin parámetros devuelve todas. Con `q`, `pagina` o `tam` filtra por asignatura, titulación o profesor y pagina.
+      parameters:
+        - { $ref: '#/components/parameters/Texto' }
+        - { $ref: '#/components/parameters/Pagina' }
+        - { $ref: '#/components/parameters/Tamano' }
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Total-Count: { description: 'Total de resultados (solo al buscar o paginar)', schema: { type: integer } }
+          content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Asignatura' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+    post:
+      tags: [Asignaturas]
+      summary: Crear asignatura
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Asignatura' } } } }
+      responses:
+        '201': { description: Creada, content: { application/json: { schema: { $ref: '#/components/schemas/Asignatura' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+  /asignaturas/{id}:
+    parameters: [ { $ref: '#/components/parameters/Id' } ]
+    get:
+      tags: [Asignaturas]
+      summary: Ver una asignatura
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Asignatura' } } } }
+        '404': { $ref: '#/components/responses/Error' }
+    put:
+      tags: [Asignaturas]
+      summary: Modificar asignatura
+      description: 409 si la capacidad baja de los ya matriculados o supera la del aula más pequeña asignada.
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Asignatura' } } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Asignatura' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Asignaturas]
+      summary: Borrar asignatura (409 si tiene matriculados)
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      responses:
+        '204': { description: Borrada }
+        '409': { $ref: '#/components/responses/Error' }
+  /asignaturas/{id}/profesor/{idProfesor}:
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+      - { name: idProfesor, in: path, required: true, schema: { type: integer } }
+    put:
+      tags: [Asignaturas]
+      summary: Asignar profesor
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Asignatura' } } } }
+        '404': { $ref: '#/components/responses/Error' }
+  /asignaturas/{id}/profesor:
+    parameters: [ { $ref: '#/components/parameters/Id' } ]
+    delete:
+      tags: [Asignaturas]
+      summary: Quitar el profesor
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Asignatura' } } } }
+  /asignaturas/{id}/alumnos:
+    parameters: [ { $ref: '#/components/parameters/Id' } ]
+    get:
+      tags: [Asignaturas]
+      summary: Alumnos matriculados
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Alumno' } } } } }
+  /asignaturas/{id}/alumnos.csv:
+    parameters: [ { $ref: '#/components/parameters/Id' } ]
+    get:
+      tags: [Asignaturas]
+      summary: Matriculados en CSV (separador ;, UTF-8)
+      responses:
+        '200': { description: Fichero CSV, content: { text/csv: { schema: { type: string } } } }
+  /asignaturas/{id}/alumnos/{idAlumno}:
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+      - { name: idAlumno, in: path, required: true, schema: { type: integer } }
+    put:
+      tags: [Asignaturas]
+      summary: Matricular (409 si está completa o ya matriculado)
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      responses:
+        '204': { description: Matriculado }
+        '409': { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Asignaturas]
+      summary: Desmatricular
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      responses:
+        '204': { description: Desmatriculado }
+        '404': { $ref: '#/components/responses/Error' }
+  /asignaturas/{id}/aulas:
+    parameters: [ { $ref: '#/components/parameters/Id' } ]
+    get:
+      tags: [Asignaturas, Aulas]
+      summary: Aulas asignadas
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Aula' } } } } }
+        '404': { $ref: '#/components/responses/Error' }
+  /asignaturas/{id}/aulas/{idAula}:
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+      - { name: idAula, in: path, required: true, schema: { type: integer } }
+    put:
+      tags: [Asignaturas, Aulas]
+      summary: Asignar aula (409 si no caben los alumnos de la asignatura)
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      responses:
+        '204': { description: Asignada }
+        '409': { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Asignaturas, Aulas]
+      summary: Quitar aula
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      responses:
+        '204': { description: Quitada }
+        '404': { $ref: '#/components/responses/Error' }
+
+  /alumnos:
+    get:
+      tags: [Alumnos]
+      summary: Listar o buscar alumnos
+      description: Sin parámetros devuelve todos. Con `q`, `pagina` o `tam` filtra por nombre, apellidos o email y pagina.
+      parameters:
+        - { $ref: '#/components/parameters/Texto' }
+        - { $ref: '#/components/parameters/Pagina' }
+        - { $ref: '#/components/parameters/Tamano' }
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Total-Count: { description: 'Total de resultados (solo al buscar o paginar)', schema: { type: integer } }
+          content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Alumno' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+    post:
+      tags: [Alumnos]
+      summary: Crear alumno
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Alumno' } } } }
+      responses:
+        '201': { description: Creado, content: { application/json: { schema: { $ref: '#/components/schemas/Alumno' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+  /alumnos/{id}:
+    parameters: [ { $ref: '#/components/parameters/Id' } ]
+    get:
+      tags: [Alumnos]
+      summary: Ver un alumno
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Alumno' } } } }
+        '404': { $ref: '#/components/responses/Error' }
+    put:
+      tags: [Alumnos]
+      summary: Modificar alumno
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Alumno' } } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Alumno' } } } }
+        '409': { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Alumnos]
+      summary: Borrar alumno (y sus matrículas)
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      responses:
+        '204': { description: Borrado }
+        '404': { $ref: '#/components/responses/Error' }
+  /alumnos/{id}/asignaturas:
+    parameters: [ { $ref: '#/components/parameters/Id' } ]
+    get:
+      tags: [Alumnos]
+      summary: Asignaturas en las que está matriculado
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Asignatura' } } } } }
+        '404': { $ref: '#/components/responses/Error' }
+
+  /aulas:
+    get:
+      tags: [Aulas]
+      summary: Listar aulas
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Aula' } } } } }
+    post:
+      tags: [Aulas]
+      summary: Crear aula
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Aula' } } } }
+      responses:
+        '201': { description: Creada, content: { application/json: { schema: { $ref: '#/components/schemas/Aula' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+  /aulas/{id}:
+    parameters: [ { $ref: '#/components/parameters/Id' } ]
+    get:
+      tags: [Aulas]
+      summary: Ver un aula
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Aula' } } } }
+        '404': { $ref: '#/components/responses/Error' }
+    put:
+      tags: [Aulas]
+      summary: Modificar aula (409 si queda pequeña para una asignatura asignada)
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Aula' } } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Aula' } } } }
+        '409': { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Aulas]
+      summary: Borrar aula (409 si tiene asignaturas)
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      responses:
+        '204': { description: Borrada }
+        '409': { $ref: '#/components/responses/Error' }
+
+  /usuarios:
+    get:
+      tags: [Administración]
+      summary: Listar usuarios (solo administradores)
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Usuario' } } } } }
+        '403': { $ref: '#/components/responses/Error' }
+    post:
+      tags: [Administración]
+      summary: Crear usuario
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/DatosUsuario' } } } }
+      responses:
+        '201': { description: Creado, content: { application/json: { schema: { $ref: '#/components/schemas/Usuario' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+  /usuarios/{id}:
+    parameters: [ { $ref: '#/components/parameters/Id' } ]
+    get:
+      tags: [Administración]
+      summary: Ver un usuario
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Usuario' } } } }
+        '403': { $ref: '#/components/responses/Error' }
+    put:
+      tags: [Administración]
+      summary: Modificar usuario (la contraseña es opcional)
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/DatosUsuario' } } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Usuario' } } } }
+        '409': { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Administración]
+      summary: Borrar usuario (siempre queda al menos un administrador)
+      parameters: [ { $ref: '#/components/parameters/Csrf' } ]
+      responses:
+        '204': { description: Borrado }
+        '409': { $ref: '#/components/responses/Error' }
+  /estadisticas:
+    get:
+      tags: [Administración]
+      summary: Totales y ocupación (solo administradores)
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Estadisticas' } } } }
+        '403': { $ref: '#/components/responses/Error' }
+
+  /salud:
+    get:
+      tags: [Operación]
+      summary: Comprobación de salud para Docker y balanceadores
+      security: []
+      responses:
+        '200': { description: La aplicación y la base de datos responden, content: { application/json: { schema: { $ref: '#/components/schemas/Salud' } } } }
+        '503': { description: Sin base de datos, content: { application/json: { schema: { $ref: '#/components/schemas/Salud' } } } }
+
+components:
+  securitySchemes:
+    sesion:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
+  parameters:
+    Id: { name: id, in: path, required: true, schema: { type: integer } }
+    Csrf:
+      name: X-CSRF-Token
+      in: header
+      required: true
+      description: Token devuelto por POST /api/sesion
+      schema: { type: string }
+    Texto: { name: q, in: query, description: 'Texto a buscar (sin distinguir mayúsculas; % y _ se buscan tal cual)', schema: { type: string, maxLength: 100 } }
+    Pagina: { name: pagina, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+    Tamano: { name: tam, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+  responses:
+    Error:
+      description: Error con mensaje legible
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    EstadoSesion:
+      description: Sesión abierta
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              usuario: { $ref: '#/components/schemas/Usuario' }
+              csrfToken: { type: string }
+  schemas:
+    Error:
+      type: object
+      properties: { error: { type: string } }
+      required: [error]
+    Credenciales:
+      type: object
+      properties: { usuario: { type: string }, contrasena: { type: string, format: password } }
+      required: [usuario, contrasena]
+    Titulacion:
+      type: object
+      properties:
+        id: { type: integer, readOnly: true }
+        nombre: { type: string, maxLength: 100 }
+        descripcion: { type: [string, 'null'] }
+        numAsignaturas: { type: integer, readOnly: true }
+      required: [nombre]
+    Profesor:
+      type: object
+      properties:
+        id: { type: integer, readOnly: true }
+        nombre: { type: string }
+        especialidad: { type: [string, 'null'] }
+        numAsignaturas: { type: integer, readOnly: true }
+      required: [nombre]
+    Asignatura:
+      type: object
+      properties:
+        id: { type: integer, readOnly: true }
+        nombre: { type: string }
+        creditos: { type: integer, minimum: 1 }
+        capacidad: { type: integer, minimum: 1 }
+        idTitulacion: { type: integer }
+        idProfesor: { type: [integer, 'null'] }
+        nombreTitulacion: { type: string, readOnly: true }
+        nombreProfesor: { type: [string, 'null'], readOnly: true }
+        matriculados: { type: integer, readOnly: true }
+        plazasLibres: { type: integer, readOnly: true }
+        ocupacion: { type: integer, readOnly: true, description: Porcentaje de plazas ocupadas }
+      required: [nombre, capacidad, idTitulacion]
+    Alumno:
+      type: object
+      properties:
+        id: { type: integer, readOnly: true }
+        nombre: { type: string }
+        apellidos: { type: string }
+        email: { type: string, format: email }
+        numAsignaturas: { type: integer, readOnly: true }
+      required: [nombre, apellidos, email]
+    Aula:
+      type: object
+      properties:
+        id: { type: integer, readOnly: true }
+        nombre: { type: string, maxLength: 40 }
+        edificio: { type: [string, 'null'], maxLength: 80 }
+        capacidad: { type: integer, minimum: 1, maximum: 1000 }
+        numAsignaturas: { type: integer, readOnly: true }
+      required: [nombre, capacidad]
+    Usuario:
+      type: object
+      properties:
+        id: { type: integer }
+        nombre: { type: string }
+        rol: { type: string, enum: [ADMIN, USUARIO] }
+    DatosUsuario:
+      type: object
+      properties:
+        nombre: { type: string }
+        contrasena: { type: string, format: password }
+        rol: { type: string, enum: [ADMIN, USUARIO] }
+      required: [nombre, rol]
+    Estadisticas:
+      type: object
+      properties:
+        totalAlumnos: { type: integer }
+        totalAsignaturas: { type: integer }
+        totalMatriculas: { type: integer }
+        asignaturasPorTitulacion:
+          type: array
+          items: { type: object, properties: { nombre: { type: string }, valor: { type: integer } } }
+        ocupacion: { type: array, items: { $ref: '#/components/schemas/Asignatura' } }
+    Salud:
+      type: object
+      properties: { estado: { type: string } }
