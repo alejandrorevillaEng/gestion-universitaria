@@ -1,0 +1,34 @@
+# cooldown: espera unos días antes de proponer una versión recién publicada. Los
+# ataques a la cadena de suministro suelen publicar versiones maliciosas que se
+# retiran en horas. Las actualizaciones de seguridad no esperan.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    groups:
+      acciones:
+        patterns: ["*"]
+
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+    groups:
+      jersey:
+        patterns: ["org.glassfish.jersey*"]
+      tomcat:
+        patterns: ["org.apache.tomcat*"]
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7

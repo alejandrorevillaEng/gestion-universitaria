@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Compilación y tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: Tests unitarios y de integración (Tomcat embebido) con cobertura
+        run: ./mvnw -B verify
+      - name: Informe de cobertura
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: cobertura
+          path: target/site/jacoco/
+
+  docker:
+    name: Imagen Docker con MySQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: tests
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Arrancar la aplicación con MySQL
+        env:
+          DB_PASSWORD: clave-solo-para-ci
+          ADMIN_PASSWORD: admin-solo-para-ci
+        run: docker compose up --build -d --wait --wait-timeout 180
+      - name: Prueba de humo
+        run: |
+          for i in $(seq 1 30); do
+            curl -fs -o /dev/null http://localhost:8080/login && break
+            sleep 3
+          done
+          curl -fsS -o /dev/null -w "login: %{http_code}\n" http://localhost:8080/login
+          estado=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/titulaciones)
+          test "$estado" = "401"
+          curl -fsS -c cookies.txt -H "Content-Type: application/json" \
+            -d '{"usuario":"admin","contrasena":"admin-solo-para-ci"}' http://localhost:8080/api/sesion
+          curl -fsS -b cookies.txt http://localhost:8080/api/asignaturas | grep -q "Programación I"
+      - name: Logs si algo falla
+        if: failure()
+        run: docker compose logs
+      - name: Parar
+        if: always()
+        run: docker compose down -v

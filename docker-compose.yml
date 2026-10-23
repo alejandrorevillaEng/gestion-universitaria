@@ -1,0 +1,36 @@
+# docker compose up --build   ->   http://localhost:8080
+# Las contraseñas se leen de un fichero .env (copia .env.example).
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: universidad
+      MYSQL_USER: universidad
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD en .env}
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - datos:/var/lib/mysql
+      # El mismo script que usa la aplicación: crea las tablas y el usuario admin.
+      - ./src/main/resources/db/dad2.sql:/docker-entrypoint-initdb.d/01-esquema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u universidad -p$$MYSQL_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: "jdbc:mysql://db:3306/universidad?allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8"
+      DB_USER: universidad
+      DB_PASSWORD: ${DB_PASSWORD}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      DATOS_EJEMPLO: ${DATOS_EJEMPLO:-true}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  datos:
