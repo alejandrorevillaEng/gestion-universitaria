@@ -34,11 +34,20 @@ public class BaseDatos implements AutoCloseable {
     public static BaseDatos crear(Configuracion config) {
         HikariConfig hikari = new HikariConfig();
         hikari.setJdbcUrl(config.urlBaseDatos());
+        /* En un Tomcat normal el driver va dentro del WAR y DriverManager no lo
+         * encuentra solo ("No suitable driver"); hay que nombrar la clase. */
+        hikari.setDriverClassName(claseDriver(config.urlBaseDatos()));
         hikari.setUsername(config.usuarioBaseDatos());
         hikari.setPassword(config.contrasenaBaseDatos());
         hikari.setMaximumPoolSize(10);
         hikari.setPoolName("universidad");
         return new BaseDatos(new HikariDataSource(hikari));
+    }
+
+    static String claseDriver(String url) {
+        if (url.startsWith("jdbc:mysql:")) return "com.mysql.cj.jdbc.Driver";
+        if (url.startsWith("jdbc:h2:")) return "org.h2.Driver";
+        throw new IllegalArgumentException("Base de datos no soportada: solo MySQL y H2");
     }
 
     public <T> T transaccion(Trabajo<T> trabajo) {

@@ -38,12 +38,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: tests
+    env:
+      DB_PASSWORD: clave-solo-para-ci
+      ADMIN_PASSWORD: admin-solo-para-ci
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Arrancar la aplicación con MySQL
-        env:
-          DB_PASSWORD: clave-solo-para-ci
-          ADMIN_PASSWORD: admin-solo-para-ci
         run: docker compose up --build -d --wait --wait-timeout 180
       - name: Prueba de humo
         run: |
