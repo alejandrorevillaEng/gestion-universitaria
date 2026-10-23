@@ -10,7 +10,7 @@ Aplicación web en Java (Jakarta EE) para gestionar titulaciones, asignaturas, p
 
 ## Por qué existe
 
-Nació como la práctica de Desarrollo de Aplicaciones Distribuidas II (Grado en Ingeniería Informática, UCAM, curso 2025-26). La versión que entregué cumplía el enunciado, pero guardaba todo en memoria, la API REST era pública y no tenía tests. Después la he rehecho para que se parezca a lo que haría en un proyecto real: base de datos, seguridad revisada a fondo, tests de integración y despliegue con Docker. También he añadido lo que el enunciado pedía para las convocatorias siguientes (alumnos, matrículas, exportar a CSV y panel de estadísticas).
+Nació como la práctica de Desarrollo de Aplicaciones Distribuidas II (Grado en Ingeniería Informática, UCAM, curso 2025-26). La versión entregada cumplía el enunciado, pero guardaba todo en memoria, la API REST era pública y no tenía tests. Después la he rehecho para que se parezca a lo que haría en un proyecto real: base de datos, seguridad revisada a fondo, tests de integración y despliegue con Docker. También he añadido lo que el enunciado pedía para las convocatorias siguientes (alumnos, matrículas, exportar a CSV y panel de estadísticas).
 
 ## Qué hace
 
