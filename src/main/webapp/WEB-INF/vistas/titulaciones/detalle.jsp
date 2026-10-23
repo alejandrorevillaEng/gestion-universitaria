@@ -22,8 +22,7 @@
         <td><a href="${ctx}/asignaturas?accion=ver&amp;id=${a.id}"><c:out value="${a.nombre}"/></a></td>
         <td><c:out value="${empty a.nombreProfesor ? 'Sin asignar' : a.nombreProfesor}"/></td>
         <td class="num">${a.creditos}</td>
-        <td><meter min="0" max="${a.capacidad}" value="${a.matriculados}" high="${a.capacidad * 0.9}"></meter>
-            <span class="detalle">${a.matriculados}/${a.capacidad}</span></td>
+        <td><span class="ocupacion"><meter min="0" max="${a.capacidad}" value="${a.matriculados}" low="${a.capacidad * 0.75}" high="${a.capacidad * 0.9}" optimum="0"></meter><span class="detalle">${a.matriculados}/${a.capacidad}</span></span></td>
     </tr>
     </c:forEach>
     </tbody>

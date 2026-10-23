@@ -8,7 +8,7 @@
     <p class="vacio">Antes de crear asignaturas necesitas al menos una <a href="${ctx}/titulaciones?accion=nuevo">titulación</a>.</p>
 </c:when>
 <c:otherwise>
-<form method="post" action="${ctx}/asignaturas" class="formulario">
+<form method="post" action="${ctx}/asignaturas" class="formulario panel-formulario">
     <input type="hidden" name="_csrf" value="${fn:escapeXml(requestScope.csrfToken)}">
     <c:if test="${asignatura.id != 0}"><input type="hidden" name="id" value="${asignatura.id}"></c:if>
 

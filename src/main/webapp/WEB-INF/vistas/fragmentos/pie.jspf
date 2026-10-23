@@ -1,6 +1,9 @@
 </main>
+<c:if test="${empty pantallaAcceso}">
 <footer class="pie">
-    Gestión universitaria · Jakarta EE, Jersey y MySQL · <u:fecha/>
+    <span>Gestión universitaria · Jakarta EE, Jersey y MySQL</span>
+    <span><u:fecha/></span>
 </footer>
+</c:if>
 </body>
 </html>

@@ -22,7 +22,7 @@ public final class AccesoServlets {
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             if (usuario(req) != null) {
-                redirigir(req, resp, "/asignaturas");
+                redirigir(req, resp, "/");
                 return;
             }
             vista(req, resp, "login");
@@ -35,7 +35,7 @@ public final class AccesoServlets {
                 Optional<Usuario> u = servicios().usuarios().autenticar(nombre, req.getParameter("contrasena"));
                 if (u.isPresent()) {
                     Sesion.iniciar(req, u.get());
-                    redirigir(req, resp, "/asignaturas");
+                    redirigir(req, resp, "/");
                     return;
                 }
                 req.setAttribute("errorFormulario", "Usuario o contraseña incorrectos");
@@ -85,11 +85,18 @@ public final class AccesoServlets {
         }
     }
 
+    /** Panel de inicio: cifras generales y las asignaturas que se están llenando. */
     @WebServlet("")
     public static class Inicio extends ControladorBase {
         @Override
-        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-            redirigir(req, resp, "/asignaturas");
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            var estadisticas = servicios().estadisticas().calcular();
+            req.setAttribute("estadisticas", estadisticas);
+            req.setAttribute("casiLlenas", estadisticas.ocupacion().stream().limit(5).toList());
+            req.setAttribute("totalTitulaciones", estadisticas.asignaturasPorTitulacion().size());
+            req.setAttribute("ocupacionMedia", estadisticas.ocupacion().stream()
+                    .mapToInt(a -> a.getOcupacion()).average().orElse(0));
+            vista(req, resp, "inicio");
         }
     }
 

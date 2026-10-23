@@ -245,12 +245,14 @@ class AplicacionIntegracionTest {
                 "/asignaturas?accion=editar&id=1", "/titulaciones", "/titulaciones?accion=ver&id=1",
                 "/titulaciones?accion=nuevo", "/profesores", "/profesores?accion=editar&id=1", "/alumnos",
                 "/alumnos?accion=ver&id=1", "/alumnos?accion=nuevo", "/usuarios", "/usuarios?accion=editar&id=1",
-                "/estadisticas", "/panel-api"}) {
+                "/estadisticas", "/panel-api", "/"}) {
             HttpResponse<String> r = n.get(ruta);
             assertEquals(200, r.statusCode(), ruta);
             assertTrue(r.body().contains("</html>"), ruta);
         }
-        assertTrue(ubicacion(n.get("/")).endsWith("/asignaturas"));
+        HttpResponse<String> inicio = n.get("/");
+        assertEquals(200, inicio.statusCode());
+        assertTrue(inicio.body().contains("Hola, admin"));
     }
 
     @Test

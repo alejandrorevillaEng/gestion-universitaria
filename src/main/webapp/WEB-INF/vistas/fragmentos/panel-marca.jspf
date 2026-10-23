@@ -1,0 +1,13 @@
+<section class="acceso-marca" aria-label="Presentación">
+    <a class="marca" href="${ctx}/login"><img src="${ctx}/img/favicon.svg" alt="" width="30" height="30"> Gestión universitaria</a>
+    <div>
+        <h2>Titulaciones, asignaturas y matrículas en un solo sitio.</h2>
+        <p>La web y la API REST trabajan sobre los mismos datos y las mismas reglas.</p>
+        <ul>
+            <li><svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-alumnos"/></svg>Matrículas que respetan la capacidad de cada asignatura</li>
+            <li><svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-estadisticas"/></svg>Panel de ocupación para administración</li>
+            <li><svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-api"/></svg>API REST documentada en el repositorio</li>
+        </ul>
+    </div>
+    <p class="pie-marca">Proyecto de portfolio · Jakarta EE</p>
+</section>

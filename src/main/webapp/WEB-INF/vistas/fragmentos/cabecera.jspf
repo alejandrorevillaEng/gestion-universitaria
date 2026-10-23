@@ -3,38 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Gestión de titulaciones, asignaturas, profesores, alumnos y matrículas.">
+    <meta name="theme-color" content="#24614f">
     <meta name="csrf-token" content="${fn:escapeXml(requestScope.csrfToken)}">
     <title><c:out value="${titulo}"/> · Gestión universitaria</title>
+    <link rel="icon" href="${ctx}/img/favicon.svg" type="image/svg+xml">
+    <link rel="preload" href="${ctx}/fuentes/geist.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="${ctx}/css/estilos.css">
     <script src="${ctx}/js/app.js" defer></script>
 </head>
 <body>
-<c:if test="${not empty yo}">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<c:if test="${not empty yo and empty pantallaAcceso}">
 <header class="barra">
-    <a class="marca" href="${ctx}/asignaturas">Gestión universitaria</a>
+    <a class="marca" href="${ctx}/">
+        <img src="${ctx}/img/favicon.svg" alt="" width="30" height="30">
+        Gestión universitaria
+    </a>
     <nav class="menu" aria-label="Secciones">
-        <a href="${ctx}/asignaturas" class="${seccion == 'asignaturas' ? 'activo' : ''}">Asignaturas</a>
-        <a href="${ctx}/titulaciones" class="${seccion == 'titulaciones' ? 'activo' : ''}">Titulaciones</a>
-        <a href="${ctx}/profesores" class="${seccion == 'profesores' ? 'activo' : ''}">Profesores</a>
-        <a href="${ctx}/alumnos" class="${seccion == 'alumnos' ? 'activo' : ''}">Alumnos</a>
+        <a href="${ctx}/" class="${seccion == 'inicio' ? 'activo' : ''}" title="Inicio">
+            <svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-inicio"/></svg><span>Inicio</span></a>
+        <a href="${ctx}/asignaturas" class="${seccion == 'asignaturas' ? 'activo' : ''}" title="Asignaturas">
+            <svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-asignaturas"/></svg><span>Asignaturas</span></a>
+        <a href="${ctx}/titulaciones" class="${seccion == 'titulaciones' ? 'activo' : ''}" title="Titulaciones">
+            <svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-titulaciones"/></svg><span>Titulaciones</span></a>
+        <a href="${ctx}/profesores" class="${seccion == 'profesores' ? 'activo' : ''}" title="Profesores">
+            <svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-profesores"/></svg><span>Profesores</span></a>
+        <a href="${ctx}/alumnos" class="${seccion == 'alumnos' ? 'activo' : ''}" title="Alumnos">
+            <svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-alumnos"/></svg><span>Alumnos</span></a>
         <c:if test="${yo.esAdmin()}">
-            <a href="${ctx}/estadisticas" class="${seccion == 'estadisticas' ? 'activo' : ''}">Estadísticas</a>
-            <a href="${ctx}/usuarios" class="${seccion == 'usuarios' ? 'activo' : ''}">Usuarios</a>
+        <a href="${ctx}/estadisticas" class="${seccion == 'estadisticas' ? 'activo' : ''}" title="Estadísticas">
+            <svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-estadisticas"/></svg><span>Estadísticas</span></a>
+        <a href="${ctx}/usuarios" class="${seccion == 'usuarios' ? 'activo' : ''}" title="Usuarios">
+            <svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-usuarios"/></svg><span>Usuarios</span></a>
         </c:if>
-        <a href="${ctx}/panel-api" class="${seccion == 'api' ? 'activo' : ''}">API REST</a>
+        <a href="${ctx}/panel-api" class="${seccion == 'api' ? 'activo' : ''}" title="API REST">
+            <svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-api"/></svg><span>API</span></a>
     </nav>
     <form class="salir" method="post" action="${ctx}/logout">
         <input type="hidden" name="_csrf" value="${fn:escapeXml(requestScope.csrfToken)}">
-        <span class="quien"><c:out value="${yo.nombre}"/><c:if test="${yo.esAdmin()}"> · administrador</c:if></span>
-        <button type="submit" class="boton boton-suave">Salir</button>
+        <span class="quien">
+            <span class="inicial" aria-hidden="true"><c:out value="${fn:substring(yo.nombre, 0, 1)}"/></span>
+            <span class="nombre-usuario"><c:out value="${yo.nombre}"/><c:if test="${yo.esAdmin()}"> <span class="etiqueta">Administración</span></c:if></span>
+        </span>
+        <button type="submit" class="boton boton-suave boton-icono" title="Cerrar sesión" aria-label="Cerrar sesión">
+            <svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-salir"/></svg>
+        </button>
     </form>
 </header>
 </c:if>
-<main class="contenido">
-<c:if test="${not empty sessionScope.flash}">
+<c:choose>
+<c:when test="${not empty pantallaAcceso}">
+<main class="acceso" id="contenido">
+</c:when>
+<c:otherwise>
+<main class="contenido" id="contenido">
+</c:otherwise>
+</c:choose>
+<c:if test="${empty pantallaAcceso and not empty sessionScope.flash}">
     <div class="aviso aviso-${sessionScope.flash.tipo}" role="status"><c:out value="${sessionScope.flash.mensaje}"/></div>
     <c:remove var="flash" scope="session"/>
 </c:if>
-<c:if test="${not empty errorFormulario}">
+<c:if test="${empty pantallaAcceso and not empty errorFormulario}">
     <div class="aviso aviso-error" role="alert"><c:out value="${errorFormulario}"/></div>
 </c:if>

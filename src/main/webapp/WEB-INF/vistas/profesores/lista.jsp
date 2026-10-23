@@ -2,8 +2,8 @@
 <c:set var="titulo" value="Profesores"/><c:set var="seccion" value="profesores"/>
 <%@ include file="/WEB-INF/vistas/fragmentos/cabecera.jspf" %>
 <div class="encabezado">
-    <h1>Profesores</h1>
-    <a class="boton" href="${ctx}/profesores?accion=nuevo">Nuevo profesor</a>
+    <div><span class="antetitulo">${fn:length(profesores)} en total</span><h1>Profesores</h1></div>
+    <a class="boton" href="${ctx}/profesores?accion=nuevo"><svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-mas"/></svg>Nuevo profesor</a>
 </div>
 <c:choose>
 <c:when test="${empty profesores}">
@@ -20,7 +20,7 @@
         <td class="detalle"><c:out value="${p.especialidad}"/></td>
         <td class="num">${p.numAsignaturas}</td>
         <td class="acciones">
-            <a class="boton boton-suave boton-pequeno" href="${ctx}/profesores?accion=editar&amp;id=${p.id}">Editar</a>
+            <a class="boton boton-suave boton-icono" href="${ctx}/profesores?accion=editar&amp;id=${p.id}" title="Editar" aria-label="Editar"><svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-lapiz"/></svg></a>
             <c:set var="rutaBorrar" value="/profesores"/><c:set var="idBorrar" value="${p.id}"/>
             <c:set var="textoConfirmar" value="¿Borrar a ${p.nombre}?"/>
             <%@ include file="/WEB-INF/vistas/fragmentos/borrar.jspf" %>

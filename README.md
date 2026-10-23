@@ -6,7 +6,7 @@ Aplicación web en Java (Jakarta EE) para gestionar titulaciones, asignaturas, p
 [![Seguridad](https://github.com/alejandrorevillaEng/gestion-universitaria/actions/workflows/seguridad.yml/badge.svg)](https://github.com/alejandrorevillaEng/gestion-universitaria/actions/workflows/seguridad.yml)
 [![Licencia: MIT](https://img.shields.io/badge/licencia-MIT-blue.svg)](LICENSE)
 
-![Listado de asignaturas](docs/capturas/asignaturas.jpg)
+![Panel de inicio](docs/capturas/inicio.jpg)
 
 ## Por qué existe
 
@@ -21,8 +21,11 @@ Nació como la práctica de Desarrollo de Aplicaciones Distribuidas II (Grado en
 - Exporta los matriculados de cada asignatura a CSV.
 - Panel de estadísticas: total de alumnos, asignaturas por titulación y ocupación de cada asignatura.
 - API REST con las mismas operaciones ([documentación](docs/api.md)) y una página que la usa desde JavaScript.
+- Interfaz propia, sin frameworks de CSS: tipografía Geist servida desde la app, iconos SVG propios, modo oscuro automático, diseño adaptable al móvil y animaciones que se desactivan si el sistema pide reducir el movimiento.
 
-![Ficha de una asignatura con sus matriculados](docs/capturas/matricula.jpg)
+| Acceso | Ficha de una asignatura (modo oscuro) |
+|---|---|
+| ![Pantalla de acceso](docs/capturas/login.jpg) | ![Ficha con sus matriculados en modo oscuro](docs/capturas/matricula-oscuro.jpg) |
 
 ## Stack y decisiones técnicas
 

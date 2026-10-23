@@ -14,7 +14,7 @@
         <td><c:out value="${u.nombre}"/><c:if test="${u.id == yo.id}"> <span class="etiqueta">tú</span></c:if></td>
         <td>${u.rol == 'ADMIN' ? 'Administrador' : 'Usuario'}</td>
         <td class="acciones">
-            <a class="boton boton-suave boton-pequeno" href="${ctx}/usuarios?accion=editar&amp;id=${u.id}">Editar</a>
+            <a class="boton boton-suave boton-icono" href="${ctx}/usuarios?accion=editar&amp;id=${u.id}" title="Editar" aria-label="Editar"><svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-lapiz"/></svg></a>
             <c:if test="${u.id != yo.id}">
                 <c:set var="rutaBorrar" value="/usuarios"/><c:set var="idBorrar" value="${u.id}"/>
                 <c:set var="textoConfirmar" value="¿Borrar el usuario ${u.nombre}?"/>

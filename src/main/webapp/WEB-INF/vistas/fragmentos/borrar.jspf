@@ -4,5 +4,7 @@
     <input type="hidden" name="_csrf" value="${fn:escapeXml(requestScope.csrfToken)}">
     <input type="hidden" name="accion" value="eliminar">
     <input type="hidden" name="id" value="${idBorrar}">
-    <button type="submit" class="boton boton-peligro boton-pequeno">Borrar</button>
+    <button type="submit" class="boton boton-peligro boton-icono" title="Borrar" aria-label="Borrar">
+        <svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-papelera"/></svg>
+    </button>
 </form>

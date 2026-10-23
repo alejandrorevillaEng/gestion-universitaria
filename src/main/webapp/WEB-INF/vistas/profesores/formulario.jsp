@@ -3,7 +3,7 @@
 <c:set var="seccion" value="profesores"/>
 <%@ include file="/WEB-INF/vistas/fragmentos/cabecera.jspf" %>
 <h1><c:out value="${titulo}"/></h1>
-<form method="post" action="${ctx}/profesores" class="formulario">
+<form method="post" action="${ctx}/profesores" class="formulario panel-formulario">
     <input type="hidden" name="_csrf" value="${fn:escapeXml(requestScope.csrfToken)}">
     <c:if test="${profesor.id != 0}"><input type="hidden" name="id" value="${profesor.id}"></c:if>
 

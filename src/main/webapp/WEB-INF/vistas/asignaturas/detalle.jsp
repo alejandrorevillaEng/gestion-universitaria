@@ -4,7 +4,7 @@
 <p class="migas"><a href="${ctx}/asignaturas">Asignaturas</a> /</p>
 <div class="encabezado">
     <h1><c:out value="${asignatura.nombre}"/></h1>
-    <a class="boton boton-suave" href="${ctx}/asignaturas?accion=editar&amp;id=${asignatura.id}">Editar</a>
+    <a class="boton boton-suave" href="${ctx}/asignaturas?accion=editar&amp;id=${asignatura.id}"><svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-lapiz"/></svg>Editar</a>
 </div>
 
 <dl class="ficha">
@@ -16,14 +16,14 @@
     <dd>${asignatura.creditos} ECTS</dd>
     <dt>Ocupación</dt>
     <dd>
-        <meter min="0" max="${asignatura.capacidad}" value="${asignatura.matriculados}" high="${asignatura.capacidad * 0.9}"></meter>
-        ${asignatura.matriculados} de ${asignatura.capacidad} plazas (${asignatura.ocupacion} %)
+        <span class="ocupacion"><meter min="0" max="${asignatura.capacidad}" value="${asignatura.matriculados}" low="${asignatura.capacidad * 0.75}" high="${asignatura.capacidad * 0.9}" optimum="0"></meter>
+        ${asignatura.matriculados} de ${asignatura.capacidad} plazas (${asignatura.ocupacion} %)</span>
     </dd>
 </dl>
 
 <div class="encabezado">
     <h2>Alumnos matriculados</h2>
-    <a class="boton boton-suave" href="${ctx}/asignaturas?accion=exportar&amp;id=${asignatura.id}">Descargar CSV</a>
+    <a class="boton boton-suave" href="${ctx}/asignaturas?accion=exportar&amp;id=${asignatura.id}"><svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-descargar"/></svg>Descargar CSV</a>
 </div>
 
 <c:choose>

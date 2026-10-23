@@ -2,8 +2,8 @@
 <c:set var="titulo" value="Titulaciones"/><c:set var="seccion" value="titulaciones"/>
 <%@ include file="/WEB-INF/vistas/fragmentos/cabecera.jspf" %>
 <div class="encabezado">
-    <h1>Titulaciones</h1>
-    <a class="boton" href="${ctx}/titulaciones?accion=nuevo">Nueva titulación</a>
+    <div><span class="antetitulo">${fn:length(titulaciones)} en total</span><h1>Titulaciones</h1></div>
+    <a class="boton" href="${ctx}/titulaciones?accion=nuevo"><svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-mas"/></svg>Nueva titulación</a>
 </div>
 <c:choose>
 <c:when test="${empty titulaciones}">
@@ -20,7 +20,7 @@
         <td class="detalle"><c:out value="${t.descripcion}"/></td>
         <td class="num">${t.numAsignaturas}</td>
         <td class="acciones">
-            <a class="boton boton-suave boton-pequeno" href="${ctx}/titulaciones?accion=editar&amp;id=${t.id}">Editar</a>
+            <a class="boton boton-suave boton-icono" href="${ctx}/titulaciones?accion=editar&amp;id=${t.id}" title="Editar" aria-label="Editar"><svg class="icono" aria-hidden="true"><use href="${ctx}/img/iconos.svg#i-lapiz"/></svg></a>
             <c:set var="rutaBorrar" value="/titulaciones"/><c:set var="idBorrar" value="${t.id}"/>
             <c:set var="textoConfirmar" value="¿Borrar la titulación ${t.nombre}?"/>
             <%@ include file="/WEB-INF/vistas/fragmentos/borrar.jspf" %>
