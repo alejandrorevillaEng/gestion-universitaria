@@ -33,6 +33,20 @@ jobs:
           name: cobertura
           path: target/site/jacoco/
 
+  mysql:
+    name: Tests contra MySQL 8.4 (Testcontainers)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: Migraciones, búsqueda y concurrencia sobre MySQL real
+        run: ./mvnw -B -Pmysql test
+
   docker:
     name: Imagen Docker con MySQL
     runs-on: ubuntu-latest
@@ -52,6 +66,7 @@ jobs:
             sleep 3
           done
           curl -fsS -o /dev/null -w "login: %{http_code}\n" http://localhost:8080/login
+          curl -fsS http://localhost:8080/api/salud | grep -q '"estado":"ok"'
           estado=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/titulaciones)
           test "$estado" = "401"
           curl -fsS -c cookies.txt -H "Content-Type: application/json" \

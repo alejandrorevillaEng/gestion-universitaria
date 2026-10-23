@@ -14,4 +14,7 @@ RUN rm -rf /usr/local/tomcat/webapps/* \
 COPY --from=compilacion --chown=app:app /src/target/universidad.war /usr/local/tomcat/webapps/ROOT.war
 USER app
 EXPOSE 8080
+# Docker (y docker compose up --wait) dan el contenedor por bueno cuando la app llega a la base de datos.
+HEALTHCHECK --interval=15s --timeout=5s --start-period=60s --retries=4 \
+    CMD curl -fsS http://localhost:8080/api/salud > /dev/null || exit 1
 CMD ["catalina.sh", "run"]
